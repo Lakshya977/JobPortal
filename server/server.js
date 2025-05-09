@@ -8,8 +8,9 @@ import { clerkWebhook } from './controller/webhooks.js';
 import companyroutes from './routes/companyroutes.js';
 import connectCloudinary from './config/cloudinary.js';
 import jobRoutes from './routes/jobRoutes.js';
+import userRoutes from './routes/userRoutes.js';
 const startServer = async () => {
-  await connectDB();
+ try{ await connectDB();
   await connectCloudinary();
   const app = express();
   // Middleware
@@ -28,13 +29,17 @@ const startServer = async () => {
 
 
   app.use('/api/jobs',jobRoutes)
-  
+  app.use('api/users',userRoutes)
 
   const PORT = process.env.PORT || 5000;
   Sentry.setupExpressErrorHandler(app);
   app.listen(PORT, () => {
     console.log(`Server is running on port ${PORT}`);
-  });
+  });}
+ catch(error){
+    console.log(error.message);
+    process.exit(1);
+ }
 };
 
 startServer();

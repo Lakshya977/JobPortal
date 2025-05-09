@@ -1,17 +1,23 @@
 import React, { useState, useEffect, useContext } from 'react';
 import { assets } from '../assets/assets';
 import AppContext from '../context/AppContext';
+import axios from 'axios';
+import { useNavigate } from 'react-router-dom';
+import { useSnackbar } from 'notistack'; 
 
 const Recruiterlogin = () => {
+  const navigate = useNavigate();
+  const { enqueueSnackbar } = useSnackbar();
   
   const [mode, setMode] = useState('Login');
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [image, setImage] = useState(null); // for step 2 signup
+  const [image, setImage] = useState(null); 
   const [isTextDataSubmitted, setIsTextDataSubmitted] = useState(false);
   
-  const {setrecruiterlogin} = useContext(AppContext)
+  const { setrecruiterlogin, backendUrl, setcompanytoken, setcompanydata } = useContext(AppContext);
+
   useEffect(() => {
     document.body.style.overflow = 'hidden';
     return () => {
@@ -19,48 +25,82 @@ const Recruiterlogin = () => {
     };
   }, []);
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
 
     if (mode === 'Sign Up') {
       if (!isTextDataSubmitted) {
         if (!name || !email || !password) {
-          alert('Please fill all fields');
+          enqueueSnackbar('Please fill all fields', { variant: 'error' }); 
           return;
         }
         setIsTextDataSubmitted(true);
         return;
       }
       if (!image) {
-        alert('Please upload a company logo');
+        enqueueSnackbar('Please upload a company logo', { variant: 'error' }); 
         return;
       }
 
       console.log('Sign Up Done', { name, email, password, image });
       
-      return;
     }
 
-    // Login logic here
-    console.log('Login', { email, password });
-    
+    try {
+      if (mode === 'Login') {
+        if (!email || !password) {
+          enqueueSnackbar('Please fill all fields', { variant: 'error' }); 
+          return;
+        }
+        
+        const { data } = await axios.post(backendUrl + "/api/company/login", { email, password });
+
+        if (data.success) {
+          console.log(data)
+          setcompanytoken(data.token);
+          setcompanydata(data.company);
+          localStorage.setItem('companytoken', data.token);
+          setrecruiterlogin(false);
+          navigate('/dashboard');
+          enqueueSnackbar('Login successful!', { variant: 'success' }); // Show success notification
+        } else {
+          enqueueSnackbar(data.message, { variant: 'error' }); 
+        }
+      }else{
+        const formData = new FormData();
+        formData.append('name', name);
+        formData.append('email', email);
+        formData.append('password', password);
+        formData.append('image', image);
+        const { data } = await axios.post(backendUrl + "/api/company/register",formData)
+        if (data.success) {
+         
+          setcompanytoken(data.token);
+          setcompanydata(data.company);
+          localStorage.setItem('companytoken', data.token);
+          setrecruiterlogin(false);
+          navigate('/dashboard');
+          enqueueSnackbar('Sign Up successful!', { variant: 'success' }); // Show success notification
+        } else {
+          enqueueSnackbar(data.message, { variant: 'error' }); // Show error notification
+        }
+      }
+    } catch (error) {
+      console.error('Login failed:', error);
+      enqueueSnackbar('Login failed, please try again', { variant: 'error' }); // Show error notification
+    }
   };
 
   return (
     <div className="fixed inset-0 flex items-center justify-center z-50">
       <div className="absolute inset-0 bg-black/40 backdrop-blur-sm z-0" />
 
-      <form
-        onSubmit={handleSubmit}
-        className="relative z-10 max-w-md w-full p-8 bg-white bg-opacity-90 rounded-xl shadow-lg"
-      >
-       
+      <form onSubmit={handleSubmit} className="relative z-10 max-w-md w-full p-8 bg-white bg-opacity-90 rounded-xl shadow-lg">
         <div className="mb-4">
           <img
             src={assets.left_arrow_icon}
             alt="Back"
-
-            onClick={()=> {setrecruiterlogin(false)}}
+            onClick={() => { setrecruiterlogin(false) }}
             className="w-6 h-6 cursor-pointer"
           />
         </div>
@@ -76,7 +116,6 @@ const Recruiterlogin = () => {
             : 'Please sign up to continue'}
         </p>
 
-        
         {!(mode === 'Sign Up' && isTextDataSubmitted) && (
           <>
             {mode === 'Sign Up' && (
@@ -116,11 +155,10 @@ const Recruiterlogin = () => {
           </>
         )}
 
-       
         {mode === 'Sign Up' && isTextDataSubmitted && (
           <div className="mb-6 flex items-center">
             <label className="block text-gray-700 mb-2">Upload Company Logo</label>
-            <img  src={image ? URL.createObjectURL(image) : assets.upload_area} alt="" />
+            <img src={image ? URL.createObjectURL(image) : assets.upload_area} alt="" />
             <input
               type="file"
               accept="image/*"
