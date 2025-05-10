@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useContext } from 'react';
 import { assets } from '../assets/assets';
-import AppContext from '../context/AppContext';
+import {AppContext} from '../context/AppContext';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import { useSnackbar } from 'notistack'; 

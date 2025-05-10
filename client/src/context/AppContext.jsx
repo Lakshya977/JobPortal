@@ -79,4 +79,4 @@ export const AppContextProvider = ({ children }) => {
   );
 };
 
-export default AppContext;
+export {AppContext};

@@ -1,5 +1,5 @@
 import React, { useContext, useEffect, useState } from 'react';
-import AppContext from '../context/AppContext';
+import {AppContext} from '../context/AppContext';
 import cross from '../assets/cross_icon.svg';
 import { JobCategories, JobLocations } from '../assets/assets';
 import JobCart from './JobCart';

@@ -8,7 +8,7 @@ import walmart from '../assets/walmart_logo.svg'
 import accenture from '../assets/accenture_logo.png'
 import samsung from '../assets/samsung_logo.png'
 import amazon from '../assets/amazon_logo.png'
-import AppContext from '../context/AppContext';
+import {AppContext} from '../context/AppContext';
 
 const Hero = () => {
   const { setSearchFilter, setIsSearch } = useContext(AppContext);

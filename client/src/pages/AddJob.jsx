@@ -1,9 +1,13 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useContext, useEffect, useRef, useState } from 'react';
 import Quill from 'quill';
 import 'quill/dist/quill.snow.css'; // Ensure Quill styles are imported
 import { assets, JobCategories, JobLocations } from '../assets/assets';
-
+import axios from 'axios';
+import {AppContext}from '../context/AppContext';
+import { useSnackbar } from 'notistack'; 
 const AddJob = () => {
+  const { enqueueSnackbar } = useSnackbar();
+  const {backendUrl,companytoken} = useContext(AppContext)
   const [title, settitle] = useState('');
   const [location, setlocation] = useState('Bangalore');
   const [category, setcategory] = useState('Programming');
@@ -11,7 +15,30 @@ const AddJob = () => {
   const [salary, setsalary] = useState(0);
   const editorref = useRef(null);
   const quillref = useRef(null);
+  const onsubmithandle = async(e) =>{
+    e.preventDefault()
 
+    try {
+      const description = quillref.current.root.innerHTML;
+      const {data} = await axios.post(backendUrl + "/api/company/postjob",
+        {title,description,location,salary,category,level},
+        {headers:{token:companytoken}}
+      )
+      if(data.success){
+       enqueueSnackbar(data.message,{variant:"success"})
+       settitle('');
+       setsalary(0)
+       quillref.current.root.innerHTML = ""
+
+      }else{
+        enqueueSnackbar(data.message,{variant:"error"})
+      }
+     
+
+    } catch(error) {
+      enqueueSnackbar("Something went wrong",{variant:"error"}) 
+    }
+  }
   useEffect(() => {
     if (!quillref.current && editorref.current) {
       quillref.current = new Quill(editorref.current, {
@@ -25,7 +52,7 @@ const AddJob = () => {
       <div className="max-w-4xl mx-auto bg-white p-8 rounded-xl shadow-md border border-purple-100">
         <h2 className="text-2xl font-bold text-purple-800 mb-6 border-b pb-2">Add a New Job</h2>
 
-        <form className="space-y-6">
+        <form onSubmit={onsubmithandle} className="space-y-6">
           <div>
             <label className="block font-medium mb-1">Job Title</label>
             <input

@@ -3,6 +3,7 @@ import bcrypt from "bcrypt";
 import {v2 as cloudinary} from "cloudinary";
 import generateToken from "../utils/generateToken.js";
 import Job from "../models/Job.js";  // Add this import
+import JobApplication from "../models/JobApplication.js";
 
 // register a new company
 export const registerCompany = async (req, res) => {
@@ -121,7 +122,6 @@ export const postjob = async (req, res) => {
 export const getCompanyJobApplications = async (req, res) => {
 
     try{
-
     }catch(error){}
 }
 
@@ -130,9 +130,12 @@ export const getCompanyPostedJobs = async (req, res) => {
        const companyID = req.company._id;
        const jobs = await Job
        .find({companyID})
-       .populate({path:'companyID',select:'-password'});
-        //applicants later
-         return res.status(200).json({success:true, jobs});
+      
+       const jobdata = await Promise.all(jobs.map(async (job) => {
+        const applicants = await JobApplication.find({jobId: job._id});
+        	return {...job.toObject(),applicants: applicants.length}       }))
+        
+         return res.status(200).json({success:true, jobdata});
 
     }
     catch(error){

@@ -3,7 +3,7 @@ import logo from '../assets/logo.svg';
 import { SignInButton, SignedOut, SignedIn, UserButton, useUser } from '@clerk/clerk-react';
 import { Link, useNavigate } from 'react-router-dom';
 import { assets } from '../assets/assets';
-import AppContext from '../context/AppContext';
+import {AppContext} from '../context/AppContext';
 
 const Navbar = () => {
   const { user } = useUser();
