@@ -1,11 +1,12 @@
 import { createContext, useEffect, useState } from "react";
 import { jobsData } from "../assets/assets";
-
+import axios from "axios";
+import { useSnackbar } from 'notistack'; 
 const AppContext = createContext();
 
 export const AppContextProvider = ({ children }) => {
   const backendUrl = import.meta.env.VITE_BACKEND_URL;
-  
+   const { enqueueSnackbar } = useSnackbar();
   
   const [searchFilter, setSearchFilter] = useState({
     title: '',
@@ -24,10 +25,37 @@ export const AppContextProvider = ({ children }) => {
  const fetchJobs = async () => {
     setJobs(jobsData);
   };
+  const fetchjobdata = async()=>{
+    //fetch company data using otken
+    try {
+      const {data} = await axios.get(backendUrl +"/api/company/company",{headers: {token:companytoken}})
+      if(data.success){
+      setcompanydata(data.company);
+      console.log(data)
+
+      }else{
+        enqueueSnackbar(data.message,{variant:error})
+      }
+    } catch (error) {
+      enqueueSnackbar(data.message,{variant:error})
+    }
+  }
 
   useEffect(() => {
     fetchJobs(); 
+    const storedcompanytoken = localStorage.getItem('companytoken');
+    if(storedcompanytoken){
+      setcompanytoken(storedcompanytoken);
+
+    }
+
   }, []);
+  useEffect(()=>{
+     if(companytoken){
+      fetchjobdata();
+
+     }
+  },[companytoken])
 
   const value = {
     searchFilter,

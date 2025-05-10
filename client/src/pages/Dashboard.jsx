@@ -1,9 +1,11 @@
-import React from 'react'
+import React, { useContext } from 'react'
 import { NavLink, Outlet, useNavigate } from 'react-router-dom'
 import { assets } from '../assets/assets'
+import AppContext from '../context/AppContext.jsx'
 
 const Dashboard = () => {
   const navigate = useNavigate()
+  const {companydata} =useContext(AppContext)
   return (
     <div className='min-h-screen'>
 
@@ -11,17 +13,20 @@ const Dashboard = () => {
       <div className='shadow py-4'>
         <div className='px-5 flex justify-between items-center'>
           <img src={assets.logo} alt="" className='max-sm:w-32 cursor-pointer' onClick={e => { navigate('/') }} />
+          {companydata && (
           <div className='flex items-center gap-3'>
-            <p className='max-sm:hidden '>Welcome ,User</p>
-            <div className='relative group'>
-              <img className='w-8 border rounded-full' src={assets.company_icon} alt="" />
-              <div className='absolute hidden group-hover:block top-0 right-0 z-10 text-black rouded pt-12'>
-                <ul className='list-none m-0 p-2 bg-white rouded-md border text-sm'>
-                  <li className='py-1 px-2 cursor-pointer pr-10'>Logout</li>
-                </ul>
-              </div>
-            </div>
+          <p className='max-sm:hidden '>Welcome ,{companydata.name}</p>
+           <div className='relative group'>
+          <img className='w-8 border rounded-full' src={companydata.image} alt="" />
+          <div className='absolute hidden group-hover:block top-0 right-0 z-10 text-black rouded pt-12'>
+           <ul className='list-none m-0 p-2 bg-white rouded-md border text-sm'>
+          <li className='py-1 px-2 cursor-pointer pr-10'>Logout</li>
+           </ul>
+           </div>
           </div>
+         </div> 
+          )}
+         
         </div>
       </div>
 

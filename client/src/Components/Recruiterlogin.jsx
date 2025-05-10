@@ -42,7 +42,7 @@ const Recruiterlogin = () => {
         return;
       }
 
-      console.log('Sign Up Done', { name, email, password, image });
+     
       
     }
 
@@ -56,13 +56,13 @@ const Recruiterlogin = () => {
         const { data } = await axios.post(backendUrl + "/api/company/login", { email, password });
 
         if (data.success) {
-          console.log(data)
+         
           setcompanytoken(data.token);
           setcompanydata(data.company);
           localStorage.setItem('companytoken', data.token);
           setrecruiterlogin(false);
           navigate('/dashboard');
-          enqueueSnackbar('Login successful!', { variant: 'success' }); // Show success notification
+          enqueueSnackbar('Login successful!', { variant: 'success' }); 
         } else {
           enqueueSnackbar(data.message, { variant: 'error' }); 
         }
@@ -80,14 +80,14 @@ const Recruiterlogin = () => {
           localStorage.setItem('companytoken', data.token);
           setrecruiterlogin(false);
           navigate('/dashboard');
-          enqueueSnackbar('Sign Up successful!', { variant: 'success' }); // Show success notification
+          enqueueSnackbar('Sign Up successful!', { variant: 'success' }); 
         } else {
-          enqueueSnackbar(data.message, { variant: 'error' }); // Show error notification
+          enqueueSnackbar(data.message, { variant: 'error' });
         }
       }
     } catch (error) {
       console.error('Login failed:', error);
-      enqueueSnackbar('Login failed, please try again', { variant: 'error' }); // Show error notification
+      enqueueSnackbar('Login failed, please try again', { variant: 'error' }); 
     }
   };
 
