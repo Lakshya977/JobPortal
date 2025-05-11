@@ -5,28 +5,22 @@ import {v2 as cloudinary} from "cloudinary";
 
 
 export const getUser = async (req, res) => {
-     
-        const userID = req.auth.userID
-     try{
-       const user = await User.findById(userID)
-    if(!user){
-        return res.status(404).json({success:false, message: "User not found"});
+  const userId = req.auth?.userId; // Clerk sets userId (lowercase 'id')
+  if (!userId) {
+    return res.status(401).json({ success: false, message: 'User not authenticated' });
+  }
+
+  try {
+    const user = await User.findById(userId); // Query using _id
+    if (!user) {
+      return res.status(404).json({ success: false, message: 'User not found' });
     }
-    return res.status(200).json({success:true, user});
-
-
-     }catch(error){
-        console.log(error);
-        return res.status(500).json({success:false, message: error.message });
-    }
-
-
-
-
-
-
-     
-}
+    return res.status(200).json({ success: true, user });
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({ success: false, message: error.message });
+  }
+};
 
 export const applyForJob = async (req, res) => {
     try{

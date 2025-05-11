@@ -24,13 +24,14 @@ export const AppContextProvider = ({ children }) => {
 
   const [userData, setUserData] = useState(null);
   const [userApplications, setUserApplications] = useState([]);
-
+  
   // Fetch public jobs
   const fetchJobs = async () => {
     try {
       const { data } = await axios.get(backendUrl + "/api/jobs");
       if (data.success) {
         setJobs(data.jobs);
+        console.log(data.jobs)
       } else {
         enqueueSnackbar(data.message, { variant: "error" });
       }
