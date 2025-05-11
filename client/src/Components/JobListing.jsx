@@ -1,5 +1,5 @@
 import React, { useContext, useEffect, useState } from 'react';
-import {AppContext} from '../context/AppContext';
+import { AppContext } from '../context/AppContext';
 import cross from '../assets/cross_icon.svg';
 import { JobCategories, JobLocations } from '../assets/assets';
 import JobCart from './JobCart';
@@ -12,7 +12,7 @@ const JobListing = () => {
   const [selectedCategories, setSelectedCategories] = useState([]);
   const [selectedLocation, setSelectedLocation] = useState([]);
   const [isFilterVisible, setIsFilterVisible] = useState(false);
-  const [filteredJob, setFilteredJob] = useState(jobs);
+  const [filteredJobs, setFilteredJobs] = useState(jobs);
   const [currentPage, setCurrentPage] = useState(1);
 
   const clearFilter = (filterType) => {
@@ -51,7 +51,7 @@ const JobListing = () => {
     const newFilteredJobs = jobs.slice().reverse().filter(
       job => matchesCategory(job) && matchesLocation(job) && matchesTitle(job) && matchesLoc(job)
     );
-    setFilteredJob(newFilteredJobs);
+    setFilteredJobs(newFilteredJobs);
     setCurrentPage(1);
   }, [jobs, selectedCategories, selectedLocation, searchFilter]);
 
@@ -139,13 +139,13 @@ const JobListing = () => {
           <h3 className="font-medium text-3xl py-2" id="job-list">Latest Jobs</h3>
           <p className="mb-8">Get your desired jobs from top companies</p>
           <div className="grid grid-cols-1 sm:grid-cols-3 xl:gap-3 gap-4">
-            {filteredJob.slice((currentPage - 1) * 6, currentPage * 6).map((job, index) => (
+            {filteredJobs.slice((currentPage - 1) * 6, currentPage * 6).map((job, index) => (
               <JobCart key={index} job={job} />
             ))}
           </div>
 
           {/* Pagination */}
-          {filteredJob.length > 0 && (
+          {filteredJobs.length > 0 && (
             <div className="flex items-center justify-center gap-2 mt-6">
               <a href="#job-list" className="p-2 hover:bg-gray-100 rounded-full transition">
                 <img
@@ -155,7 +155,7 @@ const JobListing = () => {
                   className="h-6 w-6"
                 />
               </a>
-              {Array.from({ length: Math.ceil(filteredJob.length / 6) }).map((_, index) => (
+              {Array.from({ length: Math.ceil(filteredJobs.length / 6) }).map((_, index) => (
                 <a href="#job-list" key={index}>
                   <button
                     className={`px-4 py-2 rounded-md text-sm font-medium transition ${
@@ -171,7 +171,7 @@ const JobListing = () => {
               ))}
               <a href="#job-list" className="p-2 hover:bg-gray-100 rounded-full transition">
                 <img
-                  onClick={() => setCurrentPage(Math.min(currentPage + 1, Math.ceil(filteredJob.length / 6)))}
+                  onClick={() => setCurrentPage(Math.min(currentPage + 1, Math.ceil(filteredJobs.length / 6)))}
                   src={righticon}
                   alt="Next"
                   className="h-6 w-6"

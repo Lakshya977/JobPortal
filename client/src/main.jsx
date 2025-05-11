@@ -13,14 +13,14 @@ if (!PUBLISHABLE_KEY) {
 
 createRoot(document.getElementById('root')).render(
   <StrictMode>
-  <BrowserRouter>
-    <AppContextProvider>
-    <ClerkProvider publishableKey={import.meta.env.VITE_CLERK_PUBLISHABLE_KEY} afterSignOutUrl="/">
-    <App />
-  </ClerkProvider>
-    </AppContextProvider>
-  </BrowserRouter>
-</StrictMode>
+    <ClerkProvider publishableKey={PUBLISHABLE_KEY} afterSignOutUrl="/">
+      <BrowserRouter>
+        <AppContextProvider>
+          <App />
+        </AppContextProvider>
+      </BrowserRouter>
+    </ClerkProvider>
+  </StrictMode>
 );
 
 

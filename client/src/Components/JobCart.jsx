@@ -1,5 +1,4 @@
 import React from 'react';
-import companny from '../assets/company_icon.svg';
 import { useNavigate } from 'react-router-dom';
 
 const JobCart = ({ job }) => {
@@ -9,7 +8,7 @@ const JobCart = ({ job }) => {
     <div className="bg-white p-6 rounded-xl shadow-lg hover:shadow-2xl transition-all duration-300 ease-in-out transform hover:scale-105 hover:bg-purple-50">
       <div className="flex items-center mb-4">
         <img
-          src={companny}
+          src={job.companyID.image}
           alt="Company Icon"
           className="h-10 w-10 rounded-full mr-4 transition-all duration-300 transform hover:scale-110"
         />

@@ -1,22 +1,22 @@
 import React, { useState, useEffect, useContext } from 'react';
 import { assets } from '../assets/assets';
-import {AppContext} from '../context/AppContext';
+import { AppContext } from '../context/AppContext';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
-import { useSnackbar } from 'notistack'; 
+import { useSnackbar } from 'notistack';
 
 const Recruiterlogin = () => {
   const navigate = useNavigate();
   const { enqueueSnackbar } = useSnackbar();
-  
+
   const [mode, setMode] = useState('Login');
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [image, setImage] = useState(null); 
+  const [image, setImage] = useState(null);
   const [isTextDataSubmitted, setIsTextDataSubmitted] = useState(false);
-  
-  const { setrecruiterlogin, backendUrl, setcompanytoken, setcompanydata } = useContext(AppContext);
+
+  const { setRecruiterLogin, backendUrl, setCompanyToken, setCompanyData } = useContext(AppContext);
 
   useEffect(() => {
     document.body.style.overflow = 'hidden';
@@ -31,63 +31,58 @@ const Recruiterlogin = () => {
     if (mode === 'Sign Up') {
       if (!isTextDataSubmitted) {
         if (!name || !email || !password) {
-          enqueueSnackbar('Please fill all fields', { variant: 'error' }); 
+          enqueueSnackbar('Please fill all fields', { variant: 'error' });
           return;
         }
         setIsTextDataSubmitted(true);
         return;
       }
       if (!image) {
-        enqueueSnackbar('Please upload a company logo', { variant: 'error' }); 
+        enqueueSnackbar('Please upload a company logo', { variant: 'error' });
         return;
       }
-
-     
-      
     }
 
     try {
       if (mode === 'Login') {
         if (!email || !password) {
-          enqueueSnackbar('Please fill all fields', { variant: 'error' }); 
+          enqueueSnackbar('Please fill all fields', { variant: 'error' });
           return;
         }
-        
+
         const { data } = await axios.post(backendUrl + "/api/company/login", { email, password });
 
         if (data.success) {
-         
-          setcompanytoken(data.token);
-          setcompanydata(data.company);
-          localStorage.setItem('companytoken', data.token);
-          setrecruiterlogin(false);
+          setCompanyToken(data.token);
+          setCompanyData(data.company);
+          localStorage.setItem('companyToken', data.token);
+          setRecruiterLogin(false);
           navigate('/dashboard');
-          enqueueSnackbar('Login successful!', { variant: 'success' }); 
+          enqueueSnackbar('Login successful!', { variant: 'success' });
         } else {
-          enqueueSnackbar(data.message, { variant: 'error' }); 
+          enqueueSnackbar(data.message, { variant: 'error' });
         }
-      }else{
+      } else {
         const formData = new FormData();
         formData.append('name', name);
         formData.append('email', email);
         formData.append('password', password);
         formData.append('image', image);
-        const { data } = await axios.post(backendUrl + "/api/company/register",formData)
+        const { data } = await axios.post(backendUrl + "/api/company/register", formData);
         if (data.success) {
-         
-          setcompanytoken(data.token);
-          setcompanydata(data.company);
-          localStorage.setItem('companytoken', data.token);
-          setrecruiterlogin(false);
+          setCompanyToken(data.token);
+          setCompanyData(data.company);
+          localStorage.setItem('companyToken', data.token);
+          setRecruiterLogin(false);
           navigate('/dashboard');
-          enqueueSnackbar('Sign Up successful!', { variant: 'success' }); 
+          enqueueSnackbar('Sign Up successful!', { variant: 'success' });
         } else {
           enqueueSnackbar(data.message, { variant: 'error' });
         }
       }
     } catch (error) {
       console.error('Login failed:', error);
-      enqueueSnackbar('Login failed, please try again', { variant: 'error' }); 
+      enqueueSnackbar('Login failed, please try again', { variant: 'error' });
     }
   };
 
@@ -100,7 +95,7 @@ const Recruiterlogin = () => {
           <img
             src={assets.left_arrow_icon}
             alt="Back"
-            onClick={() => { setrecruiterlogin(false) }}
+            onClick={() => { setRecruiterLogin(false) }}
             className="w-6 h-6 cursor-pointer"
           />
         </div>
@@ -156,9 +151,9 @@ const Recruiterlogin = () => {
         )}
 
         {mode === 'Sign Up' && isTextDataSubmitted && (
-          <div className="mb-6 flex items-center">
+          <div className="mb-6 flex flex-col items-start">
             <label className="block text-gray-700 mb-2">Upload Company Logo</label>
-            <img src={image ? URL.createObjectURL(image) : assets.upload_area} alt="" />
+            <img src={image ? URL.createObjectURL(image) : assets.upload_area} alt="" className="mb-2 h-20 w-auto object-contain" />
             <input
               type="file"
               accept="image/*"
@@ -190,7 +185,7 @@ const Recruiterlogin = () => {
             type="button"
             onClick={() => {
               setMode(mode === 'Login' ? 'Sign Up' : 'Login');
-              setIsTextDataSubmitted(false); // Reset when switching modes
+              setIsTextDataSubmitted(false);
             }}
             className="text-blue-600 hover:text-blue-800 text-sm"
           >

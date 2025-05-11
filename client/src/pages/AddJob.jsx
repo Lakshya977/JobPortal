@@ -3,45 +3,45 @@ import Quill from 'quill';
 import 'quill/dist/quill.snow.css'; // Ensure Quill styles are imported
 import { assets, JobCategories, JobLocations } from '../assets/assets';
 import axios from 'axios';
-import {AppContext}from '../context/AppContext';
-import { useSnackbar } from 'notistack'; 
+import { AppContext } from '../context/AppContext';
+import { useSnackbar } from 'notistack';
+
 const AddJob = () => {
   const { enqueueSnackbar } = useSnackbar();
-  const {backendUrl,companytoken} = useContext(AppContext)
-  const [title, settitle] = useState('');
-  const [location, setlocation] = useState('Bangalore');
-  const [category, setcategory] = useState('Programming');
-  const [level, setlevel] = useState('Beginner level');
-  const [salary, setsalary] = useState(0);
-  const editorref = useRef(null);
-  const quillref = useRef(null);
-  const onsubmithandle = async(e) =>{
-    e.preventDefault()
+  const { backendUrl, companyToken } = useContext(AppContext); // Use companyToken from context
+  const [title, setTitle] = useState('');
+  const [location, setLocation] = useState('Bangalore');
+  const [category, setCategory] = useState('Programming');
+  const [level, setLevel] = useState('Beginner level');
+  const [salary, setSalary] = useState(0);
+  const editorRef = useRef(null);
+  const quillRef = useRef(null);
+
+  const onSubmitHandle = async (e) => {
+    e.preventDefault();
 
     try {
-      const description = quillref.current.root.innerHTML;
-      const {data} = await axios.post(backendUrl + "/api/company/postjob",
-        {title,description,location,salary,category,level},
-        {headers:{token:companytoken}}
-      )
-      if(data.success){
-       enqueueSnackbar(data.message,{variant:"success"})
-       settitle('');
-       setsalary(0)
-       quillref.current.root.innerHTML = ""
-
-      }else{
-        enqueueSnackbar(data.message,{variant:"error"})
+      const description = quillRef.current.root.innerHTML;
+      const { data } = await axios.post(backendUrl + "/api/company/postjob", 
+        { title, description, location, salary, category, level }, 
+        { headers: { token: companyToken } } // Use companyToken here
+      );
+      if (data.success) {
+        enqueueSnackbar(data.message, { variant: "success" });
+        setTitle('');
+        setSalary(0);
+        quillRef.current.root.innerHTML = "";
+      } else {
+        enqueueSnackbar(data.message, { variant: "error" });
       }
-     
-
-    } catch(error) {
-      enqueueSnackbar("Something went wrong",{variant:"error"}) 
+    } catch (error) {
+      enqueueSnackbar("Something went wrong", { variant: "error" });
     }
-  }
+  };
+
   useEffect(() => {
-    if (!quillref.current && editorref.current) {
-      quillref.current = new Quill(editorref.current, {
+    if (!quillRef.current && editorRef.current) {
+      quillRef.current = new Quill(editorRef.current, {
         theme: 'snow'
       });
     }
@@ -52,14 +52,14 @@ const AddJob = () => {
       <div className="max-w-4xl mx-auto bg-white p-8 rounded-xl shadow-md border border-purple-100">
         <h2 className="text-2xl font-bold text-purple-800 mb-6 border-b pb-2">Add a New Job</h2>
 
-        <form onSubmit={onsubmithandle} className="space-y-6">
+        <form onSubmit={onSubmitHandle} className="space-y-6">
           <div>
             <label className="block font-medium mb-1">Job Title</label>
             <input
               type="text"
               className="w-full border border-gray-300 rounded-md px-4 py-2"
               placeholder="e.g., Frontend Developer"
-              onChange={e => settitle(e.target.value)}
+              onChange={e => setTitle(e.target.value)} // Correct variable name
               value={title}
               required
             />
@@ -68,7 +68,7 @@ const AddJob = () => {
           <div>
             <label className="block font-medium mb-1">Job Description</label>
             <div
-              ref={editorref}
+              ref={editorRef}
               className="h-40 bg-white border border-gray-300 rounded-md overflow-auto"
             ></div>
           </div>
@@ -79,7 +79,7 @@ const AddJob = () => {
               <select
                 className="w-full border border-gray-300 rounded-md px-4 py-2"
                 value={category}
-                onChange={e => setcategory(e.target.value)}
+                onChange={e => setCategory(e.target.value)} // Correct variable name
               >
                 {JobCategories.map((category, index) => (
                   <option key={index} value={category}>{category}</option>
@@ -92,7 +92,7 @@ const AddJob = () => {
               <select
                 className="w-full border border-gray-300 rounded-md px-4 py-2"
                 value={location}
-                onChange={e => setlocation(e.target.value)}
+                onChange={e => setLocation(e.target.value)} // Correct variable name
               >
                 {JobLocations.map((location, index) => (
                   <option key={index} value={location}>{location}</option>
@@ -105,7 +105,7 @@ const AddJob = () => {
               <select
                 className="w-full border border-gray-300 rounded-md px-4 py-2"
                 value={level}
-                onChange={e => setlevel(e.target.value)}
+                onChange={e => setLevel(e.target.value)} // Correct variable name
               >
                 <option value="Beginner level">Beginner Level</option>
                 <option value="Intermediate level">Intermediate Level</option>
@@ -119,7 +119,7 @@ const AddJob = () => {
                 type="number"
                 className="w-full border border-gray-300 rounded-md px-4 py-2"
                 placeholder="e.g., 50000"
-                onChange={e => setsalary(e.target.value)}
+                onChange={e => setSalary(e.target.value)} // Correct variable name
               />
             </div>
           </div>

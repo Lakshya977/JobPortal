@@ -13,19 +13,19 @@ import ViewApplications from './pages/ViewApplications';
 import 'quill/dist/quill.snow.css'; 
 
 const App = () => {
-  const { recruiterlogin,companytoken } = useContext(AppContext);
+  const { recruiterLogin,companyToken } = useContext(AppContext);
 
   return (
     <SnackbarProvider maxSnack={3}> 
       <div>
-        {recruiterlogin && <Recruiterlogin />}
+        {recruiterLogin && <Recruiterlogin />}
         <Routes>
           <Route path="/applications" element={<Applications />} />
           <Route path="/" element={<Home />} />
           <Route path="/apply-job/:id" element={<ApplyJob />} />
           <Route path="/Applications/:id" element={<Applications />} />
           <Route path="/dashboard" element={<Dashboard />}>
-            {companytoken ? <>
+            {companyToken ? <>
              <Route path="add-job" element={<AddJob />} />
             <Route path="manage-jobs" element={<ManageJobs />} />
             <Route path="view-applications" element={<ViewApplications />} />

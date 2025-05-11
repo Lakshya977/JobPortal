@@ -1,14 +1,14 @@
 import React, { useContext } from 'react';
-import logo from '../assets/logo.svg';
 import { SignInButton, SignedOut, SignedIn, UserButton, useUser } from '@clerk/clerk-react';
 import { Link, useNavigate } from 'react-router-dom';
-import { assets } from '../assets/assets';
-import {AppContext} from '../context/AppContext';
+import { AppContext } from '../context/AppContext';
+import logo from '../assets/logo.svg';  // Direct import
+import { assets } from '../assets/assets'; // If you still need other assets
 
 const Navbar = () => {
   const { user } = useUser();
   const navigate = useNavigate();
-  const { setrecruiterlogin } = useContext(AppContext);
+  const { setRecruiterLogin } = useContext(AppContext);
 
   return (
     <nav className="shadow-md bg-white px-6 py-4" aria-label="Main Navigation">
@@ -16,7 +16,7 @@ const Navbar = () => {
         <div className="text-xl font-semibold text-gray-800">
           <img
             onClick={() => navigate('/')}
-            src={assets.logo}
+            src={logo} // Updated to use the direct import of logo
             alt="Job Factory Logo"
             className="h-10 w-auto cursor-pointer"
           />
@@ -25,7 +25,7 @@ const Navbar = () => {
         <div className="flex gap-6 items-center">
           <SignedOut>
             <button
-              onClick={() => setrecruiterlogin(true)}
+              onClick={() => setRecruiterLogin(true)}
               className="text-gray-600 hover:text-blue-600 transition duration-300"
             >
               Recruiter Login

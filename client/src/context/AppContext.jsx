@@ -1,13 +1,16 @@
 import { createContext, useEffect, useState } from "react";
-import { jobsData } from "../assets/assets";
 import axios from "axios";
-import { useSnackbar } from 'notistack'; 
+import { useSnackbar } from 'notistack';
+import { useAuth, useUser } from '@clerk/clerk-react';
+
 const AppContext = createContext();
 
 export const AppContextProvider = ({ children }) => {
   const backendUrl = import.meta.env.VITE_BACKEND_URL;
-   const { enqueueSnackbar } = useSnackbar();
-  
+  const { user } = useUser();
+  const { getToken } = useAuth();
+  const { enqueueSnackbar } = useSnackbar();
+
   const [searchFilter, setSearchFilter] = useState({
     title: '',
     location: ''
@@ -15,47 +18,82 @@ export const AppContextProvider = ({ children }) => {
 
   const [isSearch, setIsSearch] = useState(false);
   const [jobs, setJobs] = useState([]);
-  const[recruiterlogin,setrecruiterlogin]= useState(false)
+  const [recruiterLogin, setRecruiterLogin] = useState(false);
+  const [companyToken, setCompanyToken] = useState(null);
+  const [companyData, setCompanyData] = useState(null);
 
- const[companytoken,setcompanytoken]= useState(null)
- const[companydata,setcompanydata]= useState(null)	 
- 
- 
- 
- const fetchJobs = async () => {
-    setJobs(jobsData);
-  };
-  const fetchjobdata = async()=>{
-    //fetch company data using otken
+  const [userData, setUserData] = useState(null);
+  const [userApplications, setUserApplications] = useState([]);
+
+  // Fetch public jobs
+  const fetchJobs = async () => {
     try {
-      const {data} = await axios.get(backendUrl +"/api/company/company",{headers: {token:companytoken}})
-      if(data.success){
-      setcompanydata(data.company);
-      console.log(data)
-
-      }else{
-        enqueueSnackbar(data.message,{variant:error})
+      const { data } = await axios.get(backendUrl + "/api/jobs");
+      if (data.success) {
+        setJobs(data.jobs);
+      } else {
+        enqueueSnackbar(data.message, { variant: "error" });
       }
     } catch (error) {
-      enqueueSnackbar(data.message,{variant:error})
+      enqueueSnackbar(error.message, { variant: "error" });
     }
-  }
+  };
+
+  // Fetch company data for authenticated company user
+  const fetchCompanyData = async () => {
+    try {
+      const { data } = await axios.get(backendUrl +"/api/company/company", {
+        headers: { token: companyToken }
+      });
+
+      if (data.success) {
+        setCompanyData(data.company);
+      } else {
+        enqueueSnackbar(data.message, { variant: "error" });
+      }
+    } catch (error) {
+      enqueueSnackbar(error.message, { variant: "error" });
+    }
+  };
+
+  // Fetch user data for authenticated user
+  const fetchUserData = async () => {
+    try {
+      const token = await getToken();
+      const { data } = await axios.get(backendUrl+ "/api/users/user", {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+
+      if (data.success) {
+        setUserData(data.user);
+      } else {
+        enqueueSnackbar(data.message, { variant: "error" });
+      }
+    } catch (error) {
+      enqueueSnackbar(error.message, { variant: "error" });
+    }
+  };
 
   useEffect(() => {
-    fetchJobs(); 
-    const storedcompanytoken = localStorage.getItem('companytoken');
-    if(storedcompanytoken){
-      setcompanytoken(storedcompanytoken);
+    fetchJobs();
 
+    const storedToken = localStorage.getItem('companyToken');
+    if (storedToken) {
+      setCompanyToken(storedToken);
     }
-
   }, []);
-  useEffect(()=>{
-     if(companytoken){
-      fetchjobdata();
 
-     }
-  },[companytoken])
+  useEffect(() => {
+    if (companyToken) {
+      fetchCompanyData();
+    }
+  }, [companyToken]);
+
+  useEffect(() => {
+    if (user) {
+      fetchUserData();
+    }
+  }, [user]);
 
   const value = {
     searchFilter,
@@ -64,11 +102,12 @@ export const AppContextProvider = ({ children }) => {
     setIsSearch,
     jobs,
     setJobs,
-    recruiterlogin,
-    setrecruiterlogin,
-    companytoken
-    ,setcompanytoken,
-    companydata,setcompanydata,
+    recruiterLogin,
+    setRecruiterLogin,
+    companyToken,
+    setCompanyToken,
+    companyData,
+    setCompanyData,
     backendUrl,
   };
 
@@ -79,4 +118,4 @@ export const AppContextProvider = ({ children }) => {
   );
 };
 
-export {AppContext};
+export { AppContext };
