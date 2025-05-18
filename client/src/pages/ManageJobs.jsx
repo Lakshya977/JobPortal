@@ -4,7 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import { AppContext } from '../context/AppContext';
 import axios from 'axios';
 import { useSnackbar } from 'notistack';
-import Loading from '../Components/loading.jsx';  
+import Loading from '../Components/Loading';  
 
 const ManageJobs = () => {
   const { enqueueSnackbar } = useSnackbar();
