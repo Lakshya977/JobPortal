@@ -120,9 +120,22 @@ export const postjob = async (req, res) => {
     }
 }
 export const getCompanyJobApplications = async (req, res) => {
-
+        
     try{
-    }catch(error){}
+      const companyId = req.company._id;
+
+
+      //find applications for the user
+      const applications = await JobApplication.find({companyId})
+      .populate('userId','name image resume') 
+      .populate('jobId','title location category level salary')
+      .exec()
+      
+      return res.json({success: true, applications});
+
+    }catch(error){
+      res.json({success:false,message:error.message})
+    }
 }
 
 export const getCompanyPostedJobs = async (req, res) => {
@@ -146,10 +159,50 @@ export const getCompanyPostedJobs = async (req, res) => {
 
 // change job application status
 export const changeJobApplicationStatus = async (req, res) => {
-    try{
+  try {
+    const { applicationId, status } = req.body;
+    const companyId = req.company._id;
 
-    }catch(error){}
-}
+    
+    if (!applicationId || !status) {
+      return res.status(400).json({ success: false, message: "Application ID and status are required" });
+    }
+
+   
+    const validStatuses = ["applied", "accepted", "rejected"];
+    if (!validStatuses.includes(status)) {
+      return res.status(400).json({ success: false, message: "Invalid status value" });
+    }
+
+    
+    const application = await JobApplication.findById(applicationId);
+    if (!application) {
+      return res.status(404).json({ success: false, message: "Application not found" });
+    }
+
+    
+    if (application.companyId.toString() !== companyId.toString()) {
+      return res.status(403).json({ success: false, message: "Unauthorized to modify this application" });
+    }
+
+   
+    application.status = status;
+    await application.save();
+    // Populate userId and jobId for response (consistent with getCompanyJobApplications)
+    const updatedApplication = await JobApplication.findById(applicationId)
+      .populate('userId', 'name image resume')
+      .populate('jobId', 'title location category level salary');
+
+    return res.status(200).json({
+      success: true,
+      message: "Application status updated successfully",
+      application: updatedApplication,
+    });
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({ success: false, message: error.message });
+  }
+};
 // visibility
 export const changeJobVisibility = async (req, res) => {
     try{

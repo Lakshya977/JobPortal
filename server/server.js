@@ -32,7 +32,7 @@ const startServer = async () => {
     app.post('/clerk-webhook', clerkWebhook);
     app.use('/api/company', companyroutes);
     app.use('/api/jobs', jobRoutes);
-    app.use('/api/users', userRoutes); // Fixed typo: removed missing slash
+    app.use('/api/users', userRoutes); 
 
     // Error handling
     Sentry.setupExpressErrorHandler(app);

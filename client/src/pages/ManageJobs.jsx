@@ -4,14 +4,17 @@ import { useNavigate } from 'react-router-dom';
 import { AppContext } from '../context/AppContext';
 import axios from 'axios';
 import { useSnackbar } from 'notistack';
+import Loading from '../Components/loading.jsx';  
 
 const ManageJobs = () => {
   const { enqueueSnackbar } = useSnackbar();
   const navigate = useNavigate();
   const [jobs, setJobs] = useState([]);
+  const [loading, setLoading] = useState(false); // new loading state
   const { backendUrl, companyToken } = useContext(AppContext);
 
   const fetchJobApplications = async () => {
+    setLoading(true);  // start loading
     try {
       const { data } = await axios.get(`${backendUrl}/api/company/list-jobs`, {
         headers: { token: companyToken },
@@ -25,6 +28,8 @@ const ManageJobs = () => {
       }
     } catch (error) {
       enqueueSnackbar(error.message, { variant: 'error' });
+    } finally {
+      setLoading(false); // stop loading
     }
   };
 
@@ -52,6 +57,10 @@ const ManageJobs = () => {
       fetchJobApplications();
     }
   }, [companyToken]);
+
+  if (loading) {
+    return <Loading />; // show loading spinner/component while loading
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-100 to-blue-50 p-4 sm:p-6">
