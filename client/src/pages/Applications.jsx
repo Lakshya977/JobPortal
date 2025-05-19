@@ -1,4 +1,4 @@
-import React, { useContext, useState, useEffect } from 'react';
+import React, { useContext, useState, useEffect, useCallback } from 'react';
 import Navbar from '../Components/Navbar';
 import { assets } from '../assets/assets';
 import moment from 'moment';
@@ -17,13 +17,20 @@ const Applications = () => {
   const [resume, setResume] = useState(null);
   const [isUploading, setIsUploading] = useState(false);
 
-  
+  // Fetch data only once when user.id changes
   useEffect(() => {
-    if (user) {
-      fetchUserApplications();
-      fetchUserData();
+    if (user?.id) {
+      const loadData = async () => {
+        try {
+          await Promise.all([fetchUserData(), fetchUserApplications()]);
+        } catch (error) {
+          enqueueSnackbar('Failed to load data', { variant: 'error' });
+          console.error('Fetch error:', error);
+        }
+      };
+      loadData();
     }
-  }, [user, fetchUserApplications, fetchUserData]);
+  }, [user?.id, fetchUserData, fetchUserApplications, enqueueSnackbar]);
 
   const updateResume = async () => {
     if (!resume) {
@@ -68,6 +75,40 @@ const Applications = () => {
     }
   };
 
+  // Memoized JobRow component to prevent unnecessary re-renders
+  const JobRow = React.memo(({ job, index }) => (
+    <tr key={job.jobId || index} className="border-b border-gray-200 hover:bg-white/20 transition">
+      <td className="px-6 py-4 flex items-center gap-3">
+        <img
+          src={job.logo || assets.default_logo}
+          alt={job.company || 'Company'}
+          className="w-8 h-8 rounded-full object-cover"
+          loading="lazy"
+          onError={(e) => (e.target.src = assets.default_logo)}
+        />
+        <span>{job.company || 'N/A'}</span>
+      </td>
+      <td className="px-6 py-4">{job.title || 'N/A'}</td>
+      <td className="px-6 py-4">{job.location || 'N/A'}</td>
+      <td className="px-6 py-4">{job.date ? moment(job.date).format('ll') : 'N/A'}</td>
+      <td className="px-6 py-4">
+        <span
+          className={`px-3 py-1 rounded-full text-xs font-medium border transition duration-200 transform hover:scale-105 hover:shadow-md ${
+            job.status === 'Pending'
+              ? 'border-yellow-500 text-yellow-500 hover:bg-yellow-100'
+              : job.status === 'Accepted'
+              ? 'border-green-500 text-green-500 hover:bg-green-100'
+              : job.status === 'Rejected'
+              ? 'border-red-500 text-red-500 hover:bg-red-100'
+              : 'border-gray-500 text-gray-500 hover:bg-gray-100'
+          }`}
+        >
+          {job.status || 'Unknown'}
+        </span>
+      </td>
+    </tr>
+  ));
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-100 to-blue-50 pb-20">
       <Navbar />
@@ -79,7 +120,9 @@ const Applications = () => {
           {isEdit ? (
             <label
               htmlFor="resumeupload"
-              className={`flex flex-col items-center gap-4 p-6 border-2 border-dashed border-blue-300 rounded-xl cursor-pointer hover:bg-blue-50 transition ${isUploading ? 'opacity-50 pointer-events-none' : ''}`}
+              className={`flex flex-col items-center gap-4 p-6 border-2 border-dashed border-blue-300 rounded-xl cursor-pointer hover:bg-blue-50 transition ${
+                isUploading ? 'opacity-50 pointer-events-none' : ''
+              }`}
             >
               <p className="text-gray-700 text-lg font-medium">{resume ? resume.name : 'Select Resume'}</p>
               <input
@@ -94,11 +137,14 @@ const Applications = () => {
                 src={assets.profile_upload_icon}
                 alt="Upload Icon"
                 className="w-16 h-16 opacity-80 hover:opacity-100 transition"
+                loading="lazy"
               />
               <button
                 onClick={updateResume}
                 disabled={isUploading}
-                className={`mt-4 px-6 py-2 bg-green-500 text-white rounded-full hover:bg-green-600 transition ${isUploading ? 'opacity-50 cursor-not-allowed' : ''}`}
+                className={`mt-4 px-6 py-2 bg-green-500 text-white rounded-full hover:bg-green-600 transition ${
+                  isUploading ? 'opacity-50 cursor-not-allowed' : ''
+                }`}
               >
                 {isUploading ? 'Uploading...' : 'Save'}
               </button>
@@ -145,37 +191,7 @@ const Applications = () => {
             <tbody>
               {userApplications.length > 0 ? (
                 userApplications.map((job, index) => (
-                  <tr key={job.jobId || index} className="border-b border-gray-200 hover:bg-white/20 transition">
-                    <td className="px-6 py-4 flex items-center gap-3">
-                      <img
-                        src={job.logo || assets.default_logo}
-                        alt={job.company || 'Company'}
-                        className="w-8 h-8 rounded-full object-cover"
-                        onError={(e) => (e.target.src = assets.default_logo)}
-                      />
-                      <span>{job.company || 'N/A'}</span>
-                    </td>
-                    <td className="px-6 py-4">{job.title || 'N/A'}</td>
-                    <td className="px-6 py-4">{job.location || 'N/A'}</td>
-                    <td className="px-6 py-4">
-                      {job.date ? moment(job.date).format('ll') : 'N/A'}
-                    </td>
-                    <td className="px-6 py-4">
-                      <span
-                        className={`px-3 py-1 rounded-full text-xs font-medium border transition duration-200 transform hover:scale-105 hover:shadow-md ${
-                          job.status === 'Pending'
-                            ? 'border-yellow-500 text-yellow-500 hover:bg-yellow-100'
-                            : job.status === 'Accepted'
-                            ? 'border-green-500 text-green-500 hover:bg-green-100'
-                            : job.status === 'Rejected'
-                            ? 'border-red-500 text-red-500 hover:bg-red-100'
-                            : 'border-gray-500 text-gray-500 hover:bg-gray-100'
-                        }`}
-                      >
-                        {job.status || 'Unknown'}
-                      </span>
-                    </td>
-                  </tr>
+                  <JobRow key={job.jobId || index} job={job} index={index} />
                 ))
               ) : (
                 <tr>
