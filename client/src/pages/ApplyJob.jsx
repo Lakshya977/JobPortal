@@ -45,7 +45,7 @@ const ApplyJob = () => {
       }
       if (!isSignedIn || !userData) {
         enqueueSnackbar('Login to apply', { variant: 'error' });
-        navigate('/login');
+        navigate('/');
         return;
       }
       if (!userData.resume) {
