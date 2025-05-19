@@ -18,11 +18,10 @@ const startServer = async () => {
     const app = express();
 
     // Middleware
-    app.use(cors()); // Enable CORS for frontend
-    app.use(express.json()); // Parse JSON bodies
-    app.use(clerkMiddleware()); // Add Clerk middleware to attach auth to all routes
-
-    // Routes
+    app.use(cors()); 
+    app.use(express.json()); 
+    app.use(clerkMiddleware()); 
+    
     app.get('/', (req, res) => res.send('API working'));
 
     app.get('/debug-sentry', (req, res) => {

@@ -5,7 +5,8 @@ import {v2 as cloudinary} from "cloudinary";
 
 
 export const getUser = async (req, res) => {
-  const userId = req.auth?.userId; // Clerk sets userId (lowercase 'id')
+     
+    const userId = req.auth?.userId; 
   if (!userId) {
     return res.status(401).json({ success: false, message: 'User not authenticated' });
   }
@@ -18,6 +19,7 @@ export const getUser = async (req, res) => {
     return res.status(200).json({ success: true, user });
   } catch (error) {
     console.error(error);
+    console.log("tatti");
     return res.status(500).json({ success: false, message: error.message });
   }
 };

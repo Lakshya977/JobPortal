@@ -27,6 +27,9 @@ export const AppContextProvider = ({ children }) => {
   const [isLoadingUserData, setIsLoadingUserData] = useState(false);
   const [userApplications, setUserApplications] = useState([]);
 
+  // To prevent infinite loops on user data fetching
+  const [hasFetchedUser, setHasFetchedUser] = useState(false);
+
   // Fetch public jobs
   const fetchJobs = async () => {
     try {
@@ -63,7 +66,8 @@ export const AppContextProvider = ({ children }) => {
     setIsLoadingUserData(true);
     try {
       const token = await getToken();
-      const { data } = await axios.get(`${backendUrl}/api/users/user`, {
+      
+      const { data } = await axios.get(backendUrl + "/api/users/user", {
         headers: { Authorization: `Bearer ${token}` },
       });
       if (data.success) {
@@ -112,12 +116,12 @@ export const AppContextProvider = ({ children }) => {
     }
   };
 
-  // Initial fetch for jobs only (companyToken state initialized above)
+  // Initial fetch for jobs only (runs once)
   useEffect(() => {
     fetchJobs();
   }, []);
 
-  // Sync companyToken with localStorage and clear company data on logout
+  // Sync companyToken with localStorage and clear company data on logout (runs only when companyToken changes)
   useEffect(() => {
     console.log('companyToken changed:', companyToken);
     if (companyToken) {
@@ -130,20 +134,27 @@ export const AppContextProvider = ({ children }) => {
     }
   }, [companyToken]);
 
-  // Fetch company data when token changes
+  // Fetch company data when companyToken changes (runs only when companyToken changes and is truthy)
   useEffect(() => {
     if (companyToken) {
       fetchCompanyData();
     }
   }, [companyToken]);
 
-  // Fetch user data and applications when signed in
+  // Fetch user data and applications only once after sign in, reset on sign out
   useEffect(() => {
-    if (isSignedIn) {
+    if (isSignedIn && !hasFetchedUser) {
       fetchUserData();
       fetchUserApplications();
+      setHasFetchedUser(true);
     }
-  }, [isSignedIn]);
+
+    if (!isSignedIn) {
+      setHasFetchedUser(false);
+      setUserData(null);
+      setUserApplications([]);
+    }
+  }, [isSignedIn, hasFetchedUser]);
 
   // Expose all state and functions
   const value = {
